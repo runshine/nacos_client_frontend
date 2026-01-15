@@ -1,0 +1,5 @@
+{
+  "name": "Docker Compose Manager",
+  "description": "A professional management dashboard for Docker Compose services, featuring real-time monitoring, service controls, logs, and system validation.",
+  "requestFramePermissions": []
+}

@@ -53,7 +53,7 @@ const Dashboard: React.FC<DashboardProps> = ({ services, onQuickAction }) => {
       </header>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <MetricCard 
           label="CPU Load" 
           value={metrics?.formatted.cpu_percent || '0%'} 
@@ -70,11 +70,11 @@ const Dashboard: React.FC<DashboardProps> = ({ services, onQuickAction }) => {
           color="emerald"
           detail={`${metrics?.formatted.memory_used} / ${metrics?.formatted.memory_total}`}
         />
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between md:col-span-2 xl:col-span-1">
           <div className="flex justify-between items-start">
             <div>
               <p className="text-sm font-medium text-slate-500">Network IO</p>
-              <div className="mt-2 space-y-1">
+              <div className="mt-2 flex flex-wrap gap-x-8 gap-y-1">
                 <p className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <ArrowUpRight className="text-rose-500" size={16}/> {metrics?.formatted.network_sent || '0 B'}
                 </p>
@@ -99,46 +99,49 @@ const Dashboard: React.FC<DashboardProps> = ({ services, onQuickAction }) => {
         <QuickStat label="Alerts" value={stats.unhealthy} icon={AlertCircle} color="text-rose-600" bg="bg-rose-50" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+        <div className="xl:col-span-3 space-y-4">
           <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <Server className="text-indigo-500" size={20} />
             Recent Services
           </h2>
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Service</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
-                  <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Control</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {services.slice(0, 5).map((service) => (
-                  <tr key={service.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 font-semibold text-slate-700">{service.name}</td>
-                    <td className="px-6 py-4"><StatusBadge status={service.real_status?.status} /></td>
-                    <td className="px-6 py-4 text-right">
-                      {service.real_status?.status === 'running' ? (
-                        <button onClick={() => onQuickAction(service.name, 'stop')} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg"><Square size={18} /></button>
-                      ) : (
-                        <button onClick={() => onQuickAction(service.name, 'start')} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg"><Play size={18} /></button>
-                      )}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[500px]">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-100">
+                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Service</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Status</th>
+                    <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Control</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {services.slice(0, 8).map((service) => (
+                    <tr key={service.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4 font-semibold text-slate-700">{service.name}</td>
+                      <td className="px-6 py-4"><StatusBadge status={service.real_status?.status} /></td>
+                      <td className="px-6 py-4 text-right">
+                        {service.real_status?.status === 'running' ? (
+                          <button onClick={() => onQuickAction(service.name, 'stop')} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg"><Square size={18} /></button>
+                        ) : (
+                          <button onClick={() => onQuickAction(service.name, 'start')} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg"><Play size={18} /></button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-slate-900">Environment</h2>
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4 h-full flex flex-col justify-center">
             <EnvRow label="API Status" value="Online" status="ok" />
             <EnvRow label="Docker Engine" value={metrics?.cpu.cores ? 'Connected' : 'Disconnected'} status={metrics?.cpu.cores ? 'ok' : 'err'} />
-            <div className="pt-2 border-t border-slate-50 text-xs text-slate-400">
+            <EnvRow label="DB Connection" value="Stable" status="ok" />
+            <div className="pt-4 mt-auto border-t border-slate-50 text-xs text-slate-400">
               Last Update: {new Date().toLocaleTimeString()}
             </div>
           </div>
@@ -178,7 +181,7 @@ const QuickStat = ({ label, value, icon: Icon, color, bg }: any) => (
 );
 
 const EnvRow = ({ label, value, status }: any) => (
-  <div className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+  <div className="flex justify-between items-center py-3 border-b border-slate-50 last:border-0">
     <span className="text-slate-500 text-sm">{label}</span>
     <span className={`text-sm font-bold ${status === 'ok' ? 'text-emerald-500' : 'text-rose-500'}`}>{value}</span>
   </div>

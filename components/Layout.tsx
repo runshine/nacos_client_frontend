@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   Layers, 
@@ -7,7 +7,9 @@ import {
   Settings, 
   LogOut, 
   Activity,
-  LineChart
+  LineChart,
+  Menu,
+  X
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -18,6 +20,8 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onLogout }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'services', label: 'Services', icon: Layers },
@@ -26,10 +30,36 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onLog
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
+  const handleTabClick = (id: string) => {
+    onTabChange(id);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-50">
+      {/* Mobile Toggle */}
+      <div className="lg:hidden fixed top-4 right-4 z-50">
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-3 bg-indigo-600 text-white rounded-2xl shadow-lg"
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Sidebar Overlay for Mobile */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col fixed h-full shadow-xl">
+      <aside className={`
+        fixed inset-y-0 left-0 w-64 bg-slate-900 text-white flex flex-col z-40 shadow-xl transition-transform duration-300 transform
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         <div className="p-6 border-b border-slate-800">
           <div className="flex items-center gap-3">
             <div className="bg-indigo-500 p-2 rounded-lg">
@@ -39,11 +69,11 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onLog
           </div>
         </div>
         
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => onTabChange(item.id)}
+              onClick={() => handleTabClick(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                 activeTab === item.id 
                   ? 'bg-indigo-600 text-white shadow-lg' 
@@ -68,8 +98,8 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, onTabChange, onLog
       </aside>
 
       {/* Main Content */}
-      <main className="ml-64 flex-1 p-8">
-        <div className="max-w-6xl mx-auto">
+      <main className="flex-1 lg:ml-64 p-4 md:p-8 overflow-x-hidden">
+        <div className="max-w-[1800px] mx-auto">
           {children}
         </div>
       </main>

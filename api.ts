@@ -37,6 +37,16 @@ export const api = {
     }),
     exec: (name: string, data: { container: string; command: string; user?: string }) => 
       getClient().post(`/services/${name}/exec`, data),
+    
+    // New File Management APIs
+    getFiles: (name: string) => getClient().get(`/services/${name}/files`),
+    downloadFile: (name: string, path: string) => getClient().get(`/services/${name}/files/download?path=${encodeURIComponent(path)}`, { responseType: 'blob' }),
+    updateFile: (name: string, path: string, content: string) => {
+      const formData = new FormData();
+      formData.append('path', path);
+      formData.append('content', content);
+      return getClient().put(`/services/${name}/files/update`, formData);
+    }
   },
 
   system: {

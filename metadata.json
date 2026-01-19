@@ -1,5 +1,5 @@
 {
-  "name": "Docker Compose Manager",
+  "name": "sothothv2-nacos-client-frontend",
   "description": "A professional management dashboard for Docker Compose services, featuring real-time monitoring, service controls, logs, and system validation.",
   "requestFramePermissions": []
 }

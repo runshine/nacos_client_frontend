@@ -150,7 +150,8 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onBack, onRefres
     }
 
     try {
-      const res = await api.services.downloadFile(service.name, file.path.replace(fileTree?.path + '/', ''));
+      const relativePath = file.path.replace(fileTree?.path + '/', '');
+      const res = await api.services.downloadFile(service.name, relativePath);
       const text = await res.data.text();
       setEditContent(text);
       setSelectedFile(file);
@@ -233,7 +234,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onBack, onRefres
           {node.type === 'file' && (
             <button 
               onClick={(e) => handleDownloadFile(e, node)}
-              className="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="p-1 hover:bg-indigo-100 rounded text-slate-400 hover:text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"
               title="Download to local"
             >
               <Download size={14} />
@@ -421,7 +422,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onBack, onRefres
                         <button 
                           onClick={() => setIsEditMode(!isEditMode)}
                           className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                            isEditMode ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
+                            isEditMode ? 'bg-amber-100 text-amber-700 border border-amber-200 shadow-sm' : 'bg-slate-100 text-slate-600 border border-slate-200'
                           }`}
                         >
                           {isEditMode ? <LockOpen size={16} /> : <Lock size={16} />}
@@ -454,7 +455,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onBack, onRefres
                       onChange={(e) => setEditContent(e.target.value)}
                       spellCheck={false}
                       className={`flex-1 p-8 font-mono text-sm outline-none resize-none leading-relaxed selection:bg-indigo-500/30 transition-colors ${
-                        isEditMode ? 'bg-slate-900 text-slate-300' : 'bg-slate-950 text-slate-400 cursor-not-allowed'
+                        isEditMode ? 'bg-slate-900 text-slate-300' : 'bg-slate-950 text-slate-500 cursor-not-allowed'
                       }`}
                     />
                   </>
@@ -464,7 +465,7 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onBack, onRefres
                       <FileText size={40} className="text-slate-300" />
                     </div>
                     <h4 className="text-lg font-bold text-slate-600">Browse Files</h4>
-                    <p className="text-sm max-w-xs mt-2 text-slate-400 leading-relaxed">Select a configuration or source file from the explorer on the left to start editing.</p>
+                    <p className="text-sm max-w-xs mt-2 text-slate-400 leading-relaxed">Select a configuration or source file from the explorer on the left to view or edit.</p>
                   </div>
                 )}
               </div>

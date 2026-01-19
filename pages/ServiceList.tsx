@@ -125,13 +125,13 @@ const ServiceList: React.FC<ServiceListProps> = ({
                   <td className="px-6 py-5 text-center">
                     <div className="inline-flex flex-col items-center">
                       <span className="text-sm font-bold text-slate-700">
-                        {service.real_status?.running || 0} / {service.real_status?.total || 0}
+                        {service.real_status?.running ?? 0} / {service.real_status?.total ?? 0}
                       </span>
                       <div className="w-20 h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
                         <div 
                           className="h-full bg-indigo-500 transition-all duration-500" 
                           style={{ 
-                            width: `${service.real_status?.total ? (service.real_status.running / service.real_status.total) * 100 : 0}%` 
+                            width: `${(service.real_status?.total ?? 0) > 0 ? ((service.real_status?.running ?? 0) / (service.real_status?.total ?? 1)) * 100 : 0}%` 
                           }} 
                         />
                       </div>

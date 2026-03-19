@@ -14,11 +14,38 @@ export interface ContainerInfo {
 }
 
 export interface RealStatus {
-  status: 'running' | 'partially_running' | 'stopped' | 'not_found' | 'unknown' | 'error';
+  status:
+    | 'running'
+    | 'partially_running'
+    | 'stopped'
+    | 'not_found'
+    | 'unknown'
+    | 'error'
+    | 'pulling'
+    | 'starting'
+    | 'stopping'
+    | 'restarting'
+    | 'failed';
   containers: ContainerInfo[];
   running?: number;
   total?: number;
   error?: string;
+  operation?: ServiceOperationStatus;
+}
+
+export interface ServiceOperationStatus {
+  active: boolean;
+  phase: 'idle' | 'pulling' | 'starting' | 'stopping' | 'restarting' | 'running' | 'failed' | string;
+  progress: number;
+  message: string;
+  error?: string;
+  updated_at?: string;
+  detail?: {
+    total_services?: number;
+    completed_services?: number;
+    last_output_line?: string;
+    [key: string]: any;
+  };
 }
 
 export interface Service {

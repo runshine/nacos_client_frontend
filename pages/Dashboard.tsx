@@ -122,9 +122,21 @@ const Dashboard: React.FC<DashboardProps> = ({ services, onQuickAction }) => {
                       <td className="px-6 py-4"><StatusBadge status={service.real_status?.status} /></td>
                       <td className="px-6 py-4 text-right">
                         {service.real_status?.status === 'running' ? (
-                          <button onClick={() => onQuickAction(service.name, 'stop')} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg"><Square size={18} /></button>
+                          <button
+                            disabled={service.real_status?.operation?.active}
+                            onClick={() => onQuickAction(service.name, 'stop')}
+                            className={`p-2 text-rose-500 hover:bg-rose-50 rounded-lg ${service.real_status?.operation?.active ? 'opacity-40 cursor-not-allowed' : ''}`}
+                          >
+                            <Square size={18} />
+                          </button>
                         ) : (
-                          <button onClick={() => onQuickAction(service.name, 'start')} className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg"><Play size={18} /></button>
+                          <button
+                            disabled={service.real_status?.operation?.active}
+                            onClick={() => onQuickAction(service.name, 'start')}
+                            className={`p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg ${service.real_status?.operation?.active ? 'opacity-40 cursor-not-allowed' : ''}`}
+                          >
+                            <Play size={18} />
+                          </button>
                         )}
                       </td>
                     </tr>
@@ -192,6 +204,11 @@ export const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
     running: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     partially_running: 'bg-amber-100 text-amber-700 border-amber-200',
     stopped: 'bg-slate-100 text-slate-600 border-slate-200',
+    pulling: 'bg-blue-100 text-blue-700 border-blue-200',
+    starting: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+    stopping: 'bg-orange-100 text-orange-700 border-orange-200',
+    restarting: 'bg-violet-100 text-violet-700 border-violet-200',
+    failed: 'bg-rose-100 text-rose-700 border-rose-200',
     error: 'bg-rose-100 text-rose-700 border-rose-200',
     unknown: 'bg-slate-100 text-slate-400 border-slate-200',
   };

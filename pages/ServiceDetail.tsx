@@ -74,6 +74,15 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onBack, onRefres
     if (activeTab === 'files') fetchFileTree();
   }, [activeTab]);
 
+  useEffect(() => {
+    const isActiveOp = !!service.real_status?.operation?.active;
+    if (!isActiveOp) return;
+    const timer = setInterval(() => {
+      onRefresh();
+    }, 1500);
+    return () => clearInterval(timer);
+  }, [service.real_status?.operation?.active, onRefresh]);
+
   const fetchLogs = async () => {
     try {
       const response = await api.services.logs(service.name);
@@ -345,6 +354,28 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onBack, onRefres
                 </div>
               </section>
 
+              {service.real_status?.operation && (
+                <section className="bg-slate-50 rounded-2xl border border-slate-100 p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Runtime Operation</h4>
+                    <StatusBadge status={service.real_status.operation.phase || service.real_status.status} />
+                  </div>
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-indigo-500 transition-all duration-500"
+                      style={{ width: `${Math.max(0, Math.min(100, service.real_status.operation.progress || 0))}%` }}
+                    />
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                    <span>{service.real_status.operation.message || '-'}</span>
+                    <span>{service.real_status.operation.progress || 0}%</span>
+                  </div>
+                  {service.real_status.operation.error && (
+                    <p className="mt-2 text-xs text-rose-600 break-all">{service.real_status.operation.error}</p>
+                  )}
+                </section>
+              )}
+
               <section>
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Containers ({service.real_status?.containers?.length || 0})</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
@@ -497,6 +528,11 @@ const ServiceDetail: React.FC<ServiceDetailProps> = ({ service, onBack, onRefres
               <div>
                 <h4 className="text-2xl font-bold text-slate-900">{processingMessage}</h4>
                 <p className="text-slate-400 text-sm mt-2">Communicating with Docker daemon. This may take a moment.</p>
+                {service.real_status?.operation?.phase && (
+                  <p className="text-xs text-slate-500 mt-2">
+                    phase: <span className="font-semibold">{service.real_status.operation.phase}</span> | progress: {service.real_status.operation.progress || 0}%
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -22,6 +22,7 @@ const App: React.FC = () => {
   // Processing States
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState('');
+  const [actionTargetServiceName, setActionTargetServiceName] = useState<string>('');
 
   // Modals
   const [showYamlModal, setShowYamlModal] = useState(false);
@@ -65,12 +66,16 @@ const App: React.FC = () => {
 
   const handleAction = async (name: string, action: string) => {
     setIsActionLoading(true);
+    setActionTargetServiceName(name);
     setActionMessage(`${action.charAt(0).toUpperCase() + action.slice(1)}ing ${name}...`);
+    const pollTimer = window.setInterval(() => {
+      fetchServices();
+    }, 1500);
     try {
       if (action === 'start') await api.services.start(name);
       if (action === 'stop') await api.services.stop(name);
       if (action === 'restart') await api.services.restart(name);
-      fetchServices();
+      await fetchServices();
       // Update selected service if viewing it
       if (selectedService?.name === name) {
         const detail = await api.services.get(name);
@@ -79,8 +84,10 @@ const App: React.FC = () => {
     } catch (e: any) {
       alert(`Action ${action} failed for ${name}: ${e.response?.data?.error || e.message}`);
     } finally {
+      window.clearInterval(pollTimer);
       setIsActionLoading(false);
       setActionMessage('');
+      setActionTargetServiceName('');
     }
   };
 
@@ -144,6 +151,11 @@ const App: React.FC = () => {
     return <Login onLogin={handleLogin} />;
   }
 
+  const actionTargetService = actionTargetServiceName
+    ? services.find((s) => s.name === actionTargetServiceName)
+    : null;
+  const actionOp = actionTargetService?.real_status?.operation;
+
   return (
     <Layout 
       activeTab={activeTab} 
@@ -195,17 +207,28 @@ const App: React.FC = () => {
             </div>
             <div>
               <h3 className="text-xl font-bold text-slate-900">{actionMessage}</h3>
-              <p className="text-slate-500 text-sm mt-2 leading-relaxed">
-                Executing synchronous Docker operation. This may take up to a minute depending on image size and network speed.
-              </p>
+              <p className="text-slate-500 text-sm mt-2 leading-relaxed">Executing Docker operation and streaming progress...</p>
             </div>
             <div className="pt-2">
               <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-indigo-500 h-full w-1/3 animate-[loading_2s_infinite_linear]" style={{
-                  animation: 'shimmer 1.5s infinite linear',
-                  backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)'
-                }} />
+                <div
+                  className="bg-indigo-500 h-full transition-all duration-500"
+                  style={{ width: `${Math.max(5, Math.min(100, actionOp?.progress || 15))}%` }}
+                />
               </div>
+              {actionOp?.phase && (
+                <p className="mt-2 text-xs text-slate-500">
+                  phase: <span className="font-semibold">{actionOp.phase}</span> | progress: {actionOp.progress || 0}%
+                </p>
+              )}
+              {actionOp?.message && (
+                <p className="mt-1 text-[11px] text-slate-400 truncate" title={actionOp.message}>
+                  {actionOp.message}
+                </p>
+              )}
+              {actionOp?.error && (
+                <p className="mt-1 text-[11px] text-rose-500 break-all">{actionOp.error}</p>
+              )}
             </div>
           </div>
         </div>

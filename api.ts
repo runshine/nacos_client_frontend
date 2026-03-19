@@ -27,6 +27,7 @@ export const api = {
     start: (name: string) => getClient().post(`/services/${name}/start`),
     stop: (name: string) => getClient().post(`/services/${name}/stop`),
     restart: (name: string) => getClient().post(`/services/${name}/restart`),
+    operationStatus: (name: string) => getClient().get(`/services/${name}/operation-status`),
     delete: (name: string, force = false) => getClient().delete(`/services/${name}?force=${force}`),
     enable: (name: string) => getClient().put(`/services/${name}/enable`),
     disable: (name: string) => getClient().put(`/services/${name}/disable`),

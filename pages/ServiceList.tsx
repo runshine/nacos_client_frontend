@@ -120,7 +120,30 @@ const ServiceList: React.FC<ServiceListProps> = ({
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <StatusBadge status={service.real_status?.status} />
+                    <div className="space-y-2">
+                      <StatusBadge status={service.real_status?.status} />
+                      {service.real_status?.operation?.active && (
+                        <div className="w-44 max-w-full">
+                          <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1">
+                            <span className="font-semibold uppercase tracking-wide">
+                              {service.real_status.operation.phase}
+                            </span>
+                            <span>{service.real_status.operation.progress || 0}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-indigo-500 transition-all duration-500"
+                              style={{ width: `${Math.max(0, Math.min(100, service.real_status.operation.progress || 0))}%` }}
+                            />
+                          </div>
+                          {service.real_status.operation.message && (
+                            <p className="mt-1 text-[10px] text-slate-400 truncate" title={service.real_status.operation.message}>
+                              {service.real_status.operation.message}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-5 text-center">
                     <div className="inline-flex flex-col items-center">
@@ -151,18 +174,20 @@ const ServiceList: React.FC<ServiceListProps> = ({
                     <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                       <button 
                         onClick={() => onAction(service.name, service.real_status?.status === 'running' ? 'stop' : 'start')}
+                        disabled={service.real_status?.operation?.active}
                         className={`p-2.5 rounded-xl transition-all ${
                           service.real_status?.status === 'running' 
                             ? 'text-rose-500 hover:bg-rose-50' 
                             : 'text-emerald-500 hover:bg-emerald-50'
-                        }`}
+                        } ${service.real_status?.operation?.active ? 'opacity-40 cursor-not-allowed' : ''}`}
                         title={service.real_status?.status === 'running' ? 'Stop' : 'Start'}
                       >
                         {service.real_status?.status === 'running' ? <Power size={20} /> : <Play size={20} />}
                       </button>
                       <button 
                         onClick={() => onAction(service.name, 'restart')}
-                        className="p-2.5 text-indigo-500 hover:bg-indigo-50 rounded-xl transition-all"
+                        disabled={service.real_status?.operation?.active}
+                        className={`p-2.5 text-indigo-500 hover:bg-indigo-50 rounded-xl transition-all ${service.real_status?.operation?.active ? 'opacity-40 cursor-not-allowed' : ''}`}
                         title="Restart"
                       >
                         <RotateCcw size={20} />
